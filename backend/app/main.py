@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import DOWNLOAD_DIR
 from app.routers.video import router as video_router
+from app.routers.auth import router as auth_router
 
 # Configuration du logging avec support UTF-8
 logging.basicConfig(
@@ -91,6 +92,7 @@ app.add_middleware(
 )
 
 # Enregistrement des routers
+app.include_router(auth_router)
 app.include_router(video_router)
 
 

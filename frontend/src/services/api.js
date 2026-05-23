@@ -19,6 +19,78 @@ const api = axios.create({
 });
 
 /**
+ * Intercepteur pour ajouter le token JWT à chaque requête
+ */
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// ============ AUTHENTIFICATION ============
+
+/**
+ * Enregistre un nouvel utilisateur
+ * @param {string} username - Nom d'utilisateur
+ * @param {string} email - Email de l'utilisateur
+ * @param {string} password - Mot de passe (minimum 8 caractères)
+ * @returns {Promise<{access_token: string, token_type: string, user: object}>}
+ */
+export async function register(username, email, password) {
+  const response = await api.post('/auth/register', { username, email, password });
+  if (response.data.access_token) {
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+  }
+  return response.data;
+}
+
+/**
+ * Se connecte avec un utilisateur
+ * @param {string} username - Nom d'utilisateur
+ * @param {string} password - Mot de passe
+ * @returns {Promise<{access_token: string, token_type: string, user: object}>}
+ */
+export async function login(username, password) {
+  const response = await api.post('/auth/login', { username, password });
+  if (response.data.access_token) {
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+  }
+  return response.data;
+}
+
+/**
+ * Se déconnecte (supprime le token local)
+ */
+export function logout() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('user');
+}
+
+/**
+ * Obtient les informations de l'utilisateur actuel
+ */
+export function getCurrentUser() {
+  const userStr = localStorage.getItem('user');
+  return userStr ? JSON.parse(userStr) : null;
+}
+
+/**
+ * Vérifie si l'utilisateur est connecté
+ */
+export function isAuthenticated() {
+  return !!localStorage.getItem('access_token');
+}
+
+// ============ VIDÉOS ============
+
+/**
  * Analyse une vidéo à partir de son URL
  * @param {string} url - URL de la vidéo
  * @returns {Promise<object>} Métadonnées de la vidéo
