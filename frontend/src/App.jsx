@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getVideoInfo, startAsyncDownload, getDownloadProgress, getDownloadFileUrl } from './services/api.js';
+import { getVideoInfo, startAsyncDownload, getDownloadProgress, getDownloadFileUrl, isAuthenticated } from './services/api.js';
 import ProgressBar from './components/ProgressBar.jsx';
+import AuthForm from './components/AuthForm.jsx';
+import UserProfile from './components/UserProfile.jsx';
 
 // Icônes SVG inline (pas de dépendance externe)
 const IconVideo = () => (
@@ -157,21 +159,29 @@ function App() {
     return `${m}m ${s}s`;
   };
 
+  // Vérifier l'authentification
+  if (!isAuthenticated()) {
+    return <AuthForm />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-purple-950">
       {/* Header */}
       <header className="border-b border-gray-800">
         <div className="max-w-5xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">StreamGrab</h1>
+                <p className="text-sm text-gray-400">Téléchargement vidéo simplifié</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">StreamGrab</h1>
-              <p className="text-sm text-gray-400">Téléchargement vidéo simplifié</p>
-            </div>
+            <UserProfile />
           </div>
         </div>
       </header>
