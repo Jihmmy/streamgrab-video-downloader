@@ -29,14 +29,23 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
 
 
+# bcrypt limite les mots de passe à 72 bytes — on tronque avant pour éviter l'erreur
+MAX_PASSWORD_BYTES = 72
+
+
+def _truncate_password(password: str) -> str:
+    """Tronque un mot de passe à 72 bytes (limite bcrypt)."""
+    return password.encode("utf-8")[:MAX_PASSWORD_BYTES].decode("utf-8", errors="ignore")
+
+
 def hash_password(password: str) -> str:
-    """Hash un mot de passe avec bcrypt."""
-    return pwd_context.hash(password)
+    """Hash un mot de passe avec bcrypt (tronqué à 72 bytes si nécessaire)."""
+    return pwd_context.hash(_truncate_password(password))
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Vérifie si un mot de passe correspond au hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Vérifie si un mot de passe correspond au hash (tronqué à 72 bytes si nécessaire)."""
+    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
 
 
 def create_access_token(

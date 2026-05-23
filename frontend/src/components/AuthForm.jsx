@@ -108,6 +108,7 @@ export default function AuthForm() {
               onChange={handleChange}
               required
               minLength={isLogin ? "1" : "8"}
+              maxLength="72"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               placeholder={isLogin ? "Votre mot de passe" : "Minimum 8 caractères"}
             />
