@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { login, register } from '../services/api';
+import { GoogleLogin } from '@react-oauth/google';
+import { login, register, socialLogin } from '../services/api';
+import { FacebookLoginButton } from './FacebookLogin';
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -26,14 +28,11 @@ export default function AuthForm() {
 
     try {
       if (isLogin) {
-        // Login
         const response = await login(formData.username, formData.password);
         console.log('Login réussi:', response.user);
         alert(`Bienvenue ${response.user.username}!`);
-        // Rediriger ou mettre à jour l'état de l'app
-        window.location.reload(); // Recharger pour mettre à jour l'UI
+        window.location.reload();
       } else {
-        // Register
         const response = await register(formData.username, formData.email, formData.password);
         console.log('Inscription réussie:', response.user);
         alert(`Compte créé! Bienvenue ${response.user.username}`);
@@ -44,6 +43,30 @@ export default function AuthForm() {
       console.error('Erreur:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setError(null);
+      const data = await socialLogin('google', credentialResponse.credential);
+      console.log('Connexion Google réussie:', data.user);
+      alert(`Bienvenue ${data.user.username}!`);
+      window.location.reload();
+    } catch (err) {
+      setError(err.response?.data?.detail || err.message || 'Erreur de connexion Google');
+    }
+  };
+
+  const handleFacebookSuccess = async (response) => {
+    try {
+      setError(null);
+      const data = await socialLogin('facebook', response.accessToken);
+      console.log('Connexion Facebook réussie:', data.user);
+      alert(`Bienvenue ${data.user.username}!`);
+      window.location.reload();
+    } catch (err) {
+      setError(err.response?.data?.detail || err.message || 'Erreur de connexion Facebook');
     }
   };
 
@@ -123,6 +146,31 @@ export default function AuthForm() {
             {loading ? 'Chargement...' : isLogin ? 'Se connecter' : 'S\'inscrire'}
           </button>
         </form>
+
+        {/* Séparateur */}
+        <div className="flex items-center my-6">
+          <div className="flex-1 border-t border-gray-300"></div>
+          <span className="px-4 text-sm text-gray-500">ou</span>
+          <div className="flex-1 border-t border-gray-300"></div>
+        </div>
+
+        {/* Boutons sociaux */}
+        <div className="space-y-3">
+          {/* Google */}
+          <div className="flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Échec de la connexion Google')}
+              size="large"
+              width="300"
+              theme="outline"
+              text={isLogin ? "signin_with" : "signup_with"}
+            />
+          </div>
+
+          {/* Facebook */}
+          <FacebookLoginButton onSuccess={handleFacebookSuccess} />
+        </div>
 
         {/* Toggle Login/Register */}
         <div className="mt-6 text-center">

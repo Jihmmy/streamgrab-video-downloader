@@ -11,8 +11,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api/v1',
-  timeout: 30000,
+  baseURL: 'https://streamgrab-video-downloader.onrender.com/api/v1',
+  timeout: 90000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -147,6 +147,21 @@ export async function downloadVideo(url, format) {
 /**
  * Vérifie que l'API est opérationnelle
  */
+/**
+ * Connecte un utilisateur via OAuth (Google / Facebook)
+ * @param {string} provider - 'google' ou 'facebook'
+ * @param {string} token - Token ID du fournisseur OAuth
+ * @returns {Promise<{access_token: string, token_type: string, user: object}>}
+ */
+export async function socialLogin(provider, token) {
+  const response = await api.post('/auth/social', { provider, token });
+  if (response.data.access_token) {
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+  }
+  return response.data;
+}
+
 export async function healthCheck() {
   const response = await api.get('/health');
   return response.data;

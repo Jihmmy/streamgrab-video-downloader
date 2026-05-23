@@ -1,8 +1,8 @@
 """
-Schémas Pydantic pour l'authentification JWT.
+Schémas Pydantic pour l'authentification JWT et OAuth.
 """
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 from typing import Optional
 
 
@@ -43,3 +43,9 @@ class LoginRequest(BaseModel):
     """Requête de connexion."""
     username: str = Field(..., description="Nom d'utilisateur")
     password: str = Field(..., description="Mot de passe")
+
+
+class SocialLoginRequest(BaseModel):
+    """Requête de connexion via OAuth (Google / Facebook)."""
+    provider: str = Field(..., description="Fournisseur OAuth: 'google' ou 'facebook'")
+    token: str = Field(..., description="Token ID renvoyé par le fournisseur OAuth")
